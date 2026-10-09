@@ -1559,7 +1559,11 @@ $ManifestUpdateInfo =	@{
 
 $ManifestAsset = [InstalledManifestAsset]::InstallLatestRelease($ManifestUpdateInfo)
 PrintAssetStatus($ManifestAsset)
-$ManifestFileInfo = $ManifestAsset.LocalInstance.FileInfo
+if ($Global:PurgeOldVersions -and $ManifestAsset.LocalInstance.UpToDate) {
+	$ManifestFileInfo = [FileInfo]::DeleteLowerRevisionLocalInstances($ManifestAsset.LocalInstance.FileInfo.Hashtable())
+} else {
+	$ManifestFileInfo = $ManifestAsset.LocalInstance.FileInfo	
+}
 
 if ([string]($ManifestAsset.LocalInstance.FileInfo.FileName) -eq 'FileNotFound') {
     Write-Error "[PowerShell-ProjectBootstrap]: Unable to obtain Manifest file after update"
